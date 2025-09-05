@@ -9,7 +9,8 @@ import {
   FaHeart,
   FaCreditCard,
   FaRocket,
-  FaStar
+  FaStar,
+  FaDatabase
 } from "react-icons/fa";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -31,11 +32,36 @@ const LoanForm = () => {
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [formProgress, setFormProgress] = useState(0);
+  const [embeddingsData, setEmbeddingsData] = useState(null);
+  const [embeddingsLoading, setEmbeddingsLoading] = useState(true);
 
   useEffect(() => {
     setIsVisible(true);
     calculateProgress();
+    loadEmbeddings();
+  }, []);
+
+  useEffect(() => {
+    calculateProgress();
   }, [formData]);
+
+  const loadEmbeddings = async () => {
+    try {
+      setEmbeddingsLoading(true);
+      const response = await fetch("/embeddings.json");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setEmbeddingsData(data);
+      console.log("✅ Embeddings loaded successfully:", data.length, "chunks");
+    } catch (error) {
+      console.error("❌ Error loading embeddings:", error);
+      setEmbeddingsData([]);
+    } finally {
+      setEmbeddingsLoading(false);
+    }
+  };
 
   const calculateProgress = () => {
     const fields = Object.values(formData);
@@ -50,6 +76,63 @@ const LoanForm = () => {
       ...formData,
       [name]: type === 'checkbox' ? checked : value,
     });
+  };
+
+  // Cosine similarity function
+  const cosineSimilarity = (a, b) => {
+    if (!a || !b || a.length !== b.length) {
+      return 0;
+    }
+    
+    let dot = 0.0;
+    let normA = 0.0;
+    let normB = 0.0;
+    
+    for (let i = 0; i < a.length; i++) {
+      dot += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+    
+    if (normA === 0 || normB === 0) return 0;
+    return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+  };
+
+  // RAG function to get relevant context
+  const getRelevantContext = async (query) => {
+    try {
+      if (!embeddingsData || embeddingsData.length === 0) {
+        console.warn("⚠️ No embeddings data available");
+        return "";
+      }
+
+      // Get embedding for the query
+      const embeddingModel = ai.getGenerativeModel({ model: "text-embedding-004" });
+      const embeddingResp = await embeddingModel.embedContent(query);
+      const queryEmbedding = embeddingResp.embedding.values;
+
+      // Calculate similarities and rank chunks
+      const rankedChunks = embeddingsData
+        .map((item) => ({
+          ...item,
+          score: cosineSimilarity(queryEmbedding, item.embedding),
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5); // Top 5 most relevant chunks
+
+      console.log("🔍 Top relevant chunks:", rankedChunks.map(c => ({ score: c.score.toFixed(3), preview: c.text.substring(0, 100) + '...' })));
+
+      // Combine the top chunks into context
+      const context = rankedChunks
+        .filter(chunk => chunk.score > 0.1) // Filter out very low similarity chunks
+        .map((chunk) => chunk.text)
+        .join("\n\n");
+
+      return context;
+    } catch (error) {
+      console.error("❌ Error in RAG retrieval:", error);
+      return "";
+    }
   };
 
   const getLoanTypeIcon = (type) => {
@@ -86,9 +169,27 @@ const LoanForm = () => {
     setLoading(true);
 
     try {
+      // Build query for RAG retrieval
+      const ragQuery = `Best loan options and recommendations for:
+        - Person aged ${formData.age}
+        - Monthly income: ₹${formData.income}
+        - Loan type: ${formData.loanType}
+        - Loan amount: ₹${formData.amount}
+        - CIBIL score: ${formData.cibilScore}
+        - Marital status: ${formData.maritalStatus ? 'Married' : 'Single'}
+        - Eligibility criteria, interest rates, processing time, required documents`;
+
+      // Get relevant context from RAG
+      const relevantContext = await getRelevantContext(ragQuery);
+
       const systemPrompt = `
-        You are an AI loan advisor for Indian customers. 
-        Provide personalized loan recommendations based on user information.
+        You are an expert AI loan advisor for Indian customers. 
+        Use the provided context from financial documents to give accurate and personalized loan recommendations.
+        
+        CONTEXT FROM FINANCIAL DOCUMENTS:
+        ${relevantContext}
+        
+        Based on the context above and the user's profile, provide personalized loan recommendations.
         Always respond in JSON format with these exact fields:
         {
           "loanType": "string",
@@ -96,19 +197,28 @@ const LoanForm = () => {
           "interestRates": ["rate1", "rate2", "rate3"],
           "repaymentOptions": ["option1", "option2"],
           "riskLevel": "Low/Medium/High",
-          "explanation": "detailed explanation",
+          "explanation": "detailed explanation based on the context provided",
           "eligibility": "Eligible/Partially Eligible/Not Eligible",
           "monthlyEMI": "estimated EMI amount",
           "processingTime": "time in days",
           "cibilImpact": "how CIBIL score affects the recommendation",
           "maritalBenefit": "how marital status affects the recommendation",
           "specialOffers": ["offer1", "offer2"],
-          "approvalChance": "percentage"
+          "approvalChance": "percentage",
+          "requiredDocuments": ["doc1", "doc2", "doc3"],
+          "contextUsed": true
         }
+
+        Guidelines:
+        1. Prioritize information from the provided context
+        2. If context is insufficient, use general knowledge but mention this in explanation
+        3. Be specific about Indian banks and financial institutions
+        4. Consider current market rates and conditions
+        5. Provide actionable advice based on the user's profile
       `;
 
       const userPrompt = `
-        User Info:
+        User Profile:
         - Name: ${formData.name}
         - Age: ${formData.age}
         - Income: ₹${formData.income}
@@ -117,12 +227,11 @@ const LoanForm = () => {
         - CIBIL Score: ${formData.cibilScore}
         - Marital Status: ${formData.maritalStatus ? 'Married' : 'Single'}
         
-        Provide recommendations for Indian banks and financial institutions.
-        Consider the CIBIL score impact on interest rates and eligibility.
-        Factor in marital status for joint loan applications and income stability.Also provide document required for proccessing loan.
+        Please provide comprehensive loan recommendations using the context provided above.
       `;
 
-      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
+      console.log("🤖 Generating recommendations with RAG context...");
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
       const genResp = await model.generateContent({
         contents: [
           {
@@ -138,6 +247,12 @@ const LoanForm = () => {
       if (jsonMatch) {
         const recommendation = JSON.parse(jsonMatch[0]);
         
+        // Add metadata about RAG usage
+        recommendation.ragUsed = true;
+        recommendation.contextLength = relevantContext.length;
+        
+        console.log("✅ RAG-enhanced recommendation generated");
+        
         // Navigate to results page with data
         navigate('/result', { 
           state: { 
@@ -149,14 +264,15 @@ const LoanForm = () => {
         throw new Error("Invalid response format");
       }
     } catch (err) {
-      console.error("❌ Gemini Error:", err);
+      console.error("❌ Error:", err);
       // Navigate to results page with error
       navigate('/result', { 
         state: { 
           formData, 
           recommendation: {
             error: true,
-            message: "Unable to get recommendations. Please try again."
+            message: "Unable to get recommendations. Please try again.",
+            ragUsed: false
           }
         } 
       });
@@ -184,8 +300,27 @@ const LoanForm = () => {
             Smart Loan Advisor
           </h1>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Get AI-powered, personalized loan recommendations tailored just for you
+            Get AI-powered, personalized loan recommendations with document-based insights
           </p>
+          
+          {/* RAG Status Indicator */}
+          <div className="mt-4 flex justify-center">
+            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              embeddingsLoading 
+                ? 'bg-yellow-100 text-yellow-800 animate-pulse' 
+                : embeddingsData && embeddingsData.length > 0
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-red-100 text-red-800'
+            }`}>
+              <FaDatabase className={`mr-2 ${embeddingsLoading ? 'animate-spin' : ''}`} />
+              {embeddingsLoading 
+                ? 'Loading Knowledge Base...' 
+                : embeddingsData && embeddingsData.length > 0
+                  ? `✅ ${embeddingsData.length} Financial Documents Loaded`
+                  : '❌ Knowledge Base Unavailable'
+              }
+            </div>
+          </div>
           
           {/* Progress Bar */}
           <div className="mt-6 max-w-md mx-auto">
@@ -362,23 +497,40 @@ const LoanForm = () => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || embeddingsLoading}
               className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-105 hover:shadow-2xl group relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               {loading ? (
                 <div className="flex items-center justify-center relative z-10">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                  <span className="animate-pulse">Analyzing Your Profile...</span>
+                  <span className="animate-pulse">Analyzing with AI & Documents...</span>
+                </div>
+              ) : embeddingsLoading ? (
+                <div className="flex items-center justify-center relative z-10">
+                  <FaDatabase className="mr-3 animate-spin" />
+                  Loading Knowledge Base...
                 </div>
               ) : (
                 <div className="flex items-center justify-center relative z-10">
                   <FaRocket className="mr-3 group-hover:animate-bounce" />
-                  Get My Recommendations
+                  Get RAG-Enhanced Recommendations
                   <FaStar className="ml-3 group-hover:animate-spin" />
                 </div>
               )}
             </button>
+
+            {/* RAG Info */}
+            {embeddingsData && embeddingsData.length > 0 && (
+              <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
+                <div className="flex items-center text-sm text-green-800">
+                  <FaDatabase className="mr-2" />
+                  <span>
+                    <strong>Enhanced with RAG:</strong> Your recommendations will be based on {embeddingsData.length} financial documents for maximum accuracy.
+                  </span>
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoanForm from './components/LoanForm';
-import Result from './components/Result';
+import LoanForm from './pages/LoanForm';
+import Result from './pages/Result';
 import './App.css';
 
 function App() {

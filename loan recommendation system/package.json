@@ -13,6 +13,7 @@
     "@google/genai": "^1.17.0",
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/vite": "^4.1.13",
+    "dompurify": "^3.2.6",
     "hnswlib-wasm": "^0.8.2",
     "localforage": "^1.10.0",
     "lucide-react": "^0.542.0",
