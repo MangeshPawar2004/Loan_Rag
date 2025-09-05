@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { motion } from 'framer-motion';
 import { 
   FaUser, 
   FaCalendarAlt, 
@@ -10,7 +11,9 @@ import {
   FaCreditCard,
   FaRocket,
   FaStar,
-  FaDatabase
+  FaDatabase,
+  FaCheckCircle,
+  FaExclamationTriangle
 } from "react-icons/fa";
 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -28,7 +31,7 @@ const LoanForm = () => {
     cibilScore: "",
     maritalStatus: false,
   });
-
+  
   const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [formProgress, setFormProgress] = useState(0);
@@ -78,7 +81,6 @@ const LoanForm = () => {
     });
   };
 
-  // Cosine similarity function
   const cosineSimilarity = (a, b) => {
     if (!a || !b || a.length !== b.length) {
       return 0;
@@ -98,7 +100,6 @@ const LoanForm = () => {
     return dot / (Math.sqrt(normA) * Math.sqrt(normB));
   };
 
-  // RAG function to get relevant context
   const getRelevantContext = async (query) => {
     try {
       if (!embeddingsData || embeddingsData.length === 0) {
@@ -106,25 +107,20 @@ const LoanForm = () => {
         return "";
       }
 
-      // Get embedding for the query
       const embeddingModel = ai.getGenerativeModel({ model: "text-embedding-004" });
       const embeddingResp = await embeddingModel.embedContent(query);
       const queryEmbedding = embeddingResp.embedding.values;
 
-      // Calculate similarities and rank chunks
       const rankedChunks = embeddingsData
         .map((item) => ({
           ...item,
           score: cosineSimilarity(queryEmbedding, item.embedding),
         }))
         .sort((a, b) => b.score - a.score)
-        .slice(0, 5); // Top 5 most relevant chunks
+        .slice(0, 5);
 
-      console.log("🔍 Top relevant chunks:", rankedChunks.map(c => ({ score: c.score.toFixed(3), preview: c.text.substring(0, 100) + '...' })));
-
-      // Combine the top chunks into context
       const context = rankedChunks
-        .filter(chunk => chunk.score > 0.1) // Filter out very low similarity chunks
+        .filter(chunk => chunk.score > 0.1)
         .map((chunk) => chunk.text)
         .join("\n\n");
 
@@ -135,24 +131,12 @@ const LoanForm = () => {
     }
   };
 
-  const getLoanTypeIcon = (type) => {
-    const icons = {
-      personal: "💳",
-      home: "🏠",
-      car: "🚗",
-      education: "🎓",
-      business: "💼",
-      health: "🏥"
-    };
-    return icons[type] || "💳";
-  };
-
   const getCibilScoreColor = (score) => {
     if (!score) return 'text-gray-600';
     const numScore = parseInt(score);
-    if (numScore >= 750) return 'text-green-600';
-    if (numScore >= 650) return 'text-yellow-600';
-    return 'text-red-600';
+    if (numScore >= 750) return 'text-green-700 bg-green-50 border-green-200';
+    if (numScore >= 650) return 'text-yellow-700 bg-yellow-50 border-yellow-200';
+    return 'text-red-700 bg-red-50 border-red-200';
   };
 
   const getCibilScoreText = (score) => {
@@ -169,7 +153,6 @@ const LoanForm = () => {
     setLoading(true);
 
     try {
-      // Build query for RAG retrieval
       const ragQuery = `Best loan options and recommendations for:
         - Person aged ${formData.age}
         - Monthly income: ₹${formData.income}
@@ -179,7 +162,6 @@ const LoanForm = () => {
         - Marital status: ${formData.maritalStatus ? 'Married' : 'Single'}
         - Eligibility criteria, interest rates, processing time, required documents`;
 
-      // Get relevant context from RAG
       const relevantContext = await getRelevantContext(ragQuery);
 
       const systemPrompt = `
@@ -247,13 +229,11 @@ const LoanForm = () => {
       if (jsonMatch) {
         const recommendation = JSON.parse(jsonMatch[0]);
         
-        // Add metadata about RAG usage
         recommendation.ragUsed = true;
         recommendation.contextLength = relevantContext.length;
         
         console.log("✅ RAG-enhanced recommendation generated");
         
-        // Navigate to results page with data
         navigate('/result', { 
           state: { 
             formData, 
@@ -265,7 +245,6 @@ const LoanForm = () => {
       }
     } catch (err) {
       console.error("❌ Error:", err);
-      // Navigate to results page with error
       navigate('/result', { 
         state: { 
           formData, 
@@ -281,38 +260,59 @@ const LoanForm = () => {
     setLoading(false);
   };
 
+  const loanTypes = [
+    { value: "personal", label: "Personal Loan", icon: "💳", color: "from-blue-500 to-indigo-600" },
+    { value: "home", label: "Home Loan", icon: "🏠", color: "from-green-500 to-emerald-600" },
+    { value: "car", label: "Car Loan", icon: "🚗", color: "from-red-500 to-pink-600" },
+    { value: "education", label: "Education Loan", icon: "🎓", color: "from-purple-500 to-violet-600" },
+    { value: "business", label: "Business Loan", icon: "💼", color: "from-yellow-500 to-orange-600" },
+    { value: "health", label: "Health Loan", icon: "🏥", color: "from-teal-500 to-cyan-600" }
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 relative overflow-hidden">
       {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-200 to-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-yellow-200 to-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-gradient-to-br from-purple-200 to-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-yellow-400 to-pink-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-gradient-to-br from-purple-400 to-blue-600 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className={`max-w-2xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-        {/* Header */}
-        <div className="text-center mb-8 relative z-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4 animate-pulse">
-            <FaUniversity className="text-white text-3xl" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+      <div className="max-w-4xl mx-auto relative z-10">
+        {/* Enhanced Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12 md:mb-16"
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+            className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-6 mt-20 shadow-2xl"
+          >
+            <FaUniversity className="text-white text-4xl" />
+          </motion.div>
+          
+          <h1 className="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-800 mb-4">
             Smart Loan Advisor
           </h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          
+          <p className="text-xl md:text-2xl text-gray-700 max-w-3xl mx-auto mb-8 font-medium">
             Get AI-powered, personalized loan recommendations with document-based insights
           </p>
-          
-          {/* RAG Status Indicator */}
-          <div className="mt-4 flex justify-center">
-            <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+
+          {/* Enhanced Status Indicator */}
+          <div className="flex justify-center mb-8">
+            <div className={`inline-flex items-center px-6 py-3 rounded-2xl text-lg font-bold shadow-lg transition-all duration-300 ${
               embeddingsLoading 
-                ? 'bg-yellow-100 text-yellow-800 animate-pulse' 
+                ? 'bg-yellow-100 text-yellow-900 animate-pulse border-2 border-yellow-300' 
                 : embeddingsData && embeddingsData.length > 0
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
+                  ? 'bg-green-100 text-green-900 border-2 border-green-300'
+                  : 'bg-red-100 text-red-900 border-2 border-red-300'
             }`}>
-              <FaDatabase className={`mr-2 ${embeddingsLoading ? 'animate-spin' : ''}`} />
+              <FaDatabase className={`mr-3 text-xl ${embeddingsLoading ? 'animate-spin' : ''}`} />
               {embeddingsLoading 
                 ? 'Loading Knowledge Base...' 
                 : embeddingsData && embeddingsData.length > 0
@@ -322,217 +322,261 @@ const LoanForm = () => {
             </div>
           </div>
           
-          {/* Progress Bar */}
-          <div className="mt-6 max-w-md mx-auto">
-            <div className="flex justify-between text-sm text-gray-500 mb-2">
+          {/* Bold Progress Bar */}
+          <div className="max-w-md mx-auto">
+            <div className="flex justify-between text-lg font-bold text-gray-700 mb-3">
               <span>Profile Completion</span>
-              <span>{Math.round(formProgress)}%</span>
+              <span className="text-blue-600">{Math.round(formProgress)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div 
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out"
+            <div className="w-full bg-gray-300 rounded-full h-4 shadow-inner">
+              <motion.div 
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 h-4 rounded-full shadow-lg transition-all duration-500 ease-out"
                 style={{ width: `${formProgress}%` }}
-              ></div>
+                initial={{ width: 0 }}
+                animate={{ width: `${formProgress}%` }}
+              >
+                <div className="h-full bg-gradient-to-r from-white/30 to-transparent rounded-full"></div>
+              </motion.div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Form Section */}
-        <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 hover:shadow-3xl transition-all duration-500 relative z-10">
-          <div className="flex items-center mb-6">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
-              <FaUser className="text-white text-xl" />
+        {/* Enhanced Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.8 }}
+          className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl border-2 border-white/30 p-10 hover:shadow-3xl transition-all duration-500"
+        >
+          <div className="flex items-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-6 shadow-lg">
+              <FaUser className="text-white text-2xl" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">Your Information</h2>
+            <h2 className="text-3xl font-extrabold text-gray-800">Your Information</h2>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Name Field - Enhanced */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-blue-600 transition-colors">
-                Full Name
+              <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
+                Full Name *
               </label>
               <div className="relative">
-                <FaUser className="absolute left-3 top-3 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                <FaUser className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-blue-500 transition-colors" />
                 <input
                   type="text"
                   name="name"
                   placeholder="Enter your full name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md"
+                  className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl"
                   required
                 />
               </div>
             </div>
 
-            {/* Age and Marital Status Row */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Age and Marital Status - Enhanced */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-blue-600 transition-colors">
-                  Age
+                <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
+                  Age *
                 </label>
                 <div className="relative">
-                  <FaCalendarAlt className="absolute left-3 top-3 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  <FaCalendarAlt className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-blue-500 transition-colors" />
                   <input
                     type="number"
                     name="age"
                     placeholder="Your age"
                     value={formData.age}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md"
+                    className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl"
                     required
                   />
                 </div>
               </div>
 
               <div className="group">
-                <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-pink-600 transition-colors">
+                <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-pink-600 transition-colors">
                   Marital Status
                 </label>
-                <div className="flex items-center h-12 bg-gradient-to-r from-gray-50 to-pink-50 rounded-xl border-2 border-gray-200 px-4 hover:shadow-md transition-all duration-300">
+                <div className="flex items-center h-16 bg-gradient-to-r from-white to-pink-50 rounded-2xl border-3 border-gray-300 px-6 hover:shadow-lg transition-all duration-300 cursor-pointer">
                   <input
                     type="checkbox"
                     name="maritalStatus"
                     id="maritalStatus"
                     checked={formData.maritalStatus}
                     onChange={handleChange}
-                    className="w-5 h-5 text-pink-600 bg-gray-100 border-gray-300 rounded focus:ring-pink-500 focus:ring-2 transition-colors"
+                    className="w-6 h-6 text-pink-600 bg-gray-100 border-2 border-gray-400 rounded focus:ring-pink-500 focus:ring-2 transition-colors"
                   />
-                  <label htmlFor="maritalStatus" className="ml-3 flex items-center text-gray-700 font-medium cursor-pointer">
-                    <FaHeart className={`mr-2 transition-colors ${formData.maritalStatus ? 'text-pink-500' : 'text-gray-400'}`} />
-                    <span className="transition-colors">{formData.maritalStatus ? 'Married' : 'Single'}</span>
+                  <label htmlFor="maritalStatus" className="ml-4 flex items-center text-lg font-bold text-gray-800 cursor-pointer">
+                    <FaHeart className={`mr-3 text-xl transition-colors ${formData.maritalStatus ? 'text-pink-500' : 'text-gray-400'}`} />
+                    <span className="transition-colors">{formData.maritalStatus ? 'Married 💕' : 'Single 👤'}</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            {/* Income Field */}
+            {/* Income Field - Enhanced */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-green-600 transition-colors">
-                Monthly Income (₹)
+              <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-green-600 transition-colors">
+                Monthly Income (₹) *
               </label>
               <div className="relative">
-                <FaDollarSign className="absolute left-3 top-3 text-gray-400 group-hover:text-green-500 transition-colors" />
+                <FaDollarSign className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-green-500 transition-colors" />
                 <input
                   type="number"
                   name="income"
                   placeholder="Your monthly income"
                   value={formData.income}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md"
+                  className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-green-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl"
                   required
                 />
               </div>
             </div>
 
-            {/* CIBIL Score Dropdown */}
+            {/* CIBIL Score - Enhanced */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-indigo-600 transition-colors">
-                CIBIL Score
+              <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-indigo-600 transition-colors">
+                CIBIL Score *
               </label>
               <div className="relative">
-                <FaCreditCard className="absolute left-3 top-3 text-gray-400 group-hover:text-indigo-500 transition-colors" />
+                <FaCreditCard className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-indigo-500 transition-colors z-10" />
                 <select
                   name="cibilScore"
                   value={formData.cibilScore}
                   onChange={handleChange}
-                  className={`w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md ${getCibilScoreColor(formData.cibilScore)}`}
+                  className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl appearance-none"
                   required
                 >
                   <option value="">Select your CIBIL score range</option>
-                  <option value="300-549">300-549 (Poor)</option>
-                  <option value="550-649">550-649 (Fair)</option>
-                  <option value="650-749">650-749 (Good)</option>
-                  <option value="750-900">750-900 (Excellent)</option>
-                  <option value="unknown">Don't know my score</option>
+                  <option value="300-549">300-549 (Poor) ❌</option>
+                  <option value="550-649">550-649 (Fair) ⚠️</option>
+                  <option value="650-749">650-749 (Good) ✅</option>
+                  <option value="750-900">750-900 (Excellent) 🌟</option>
+                  <option value="unknown">Don't know my score ❓</option>
                 </select>
               </div>
               {formData.cibilScore && formData.cibilScore !== 'unknown' && (
-                <p className={`text-sm mt-2 font-medium px-3 py-1 rounded-lg ${getCibilScoreColor(formData.cibilScore.split('-')[0])} bg-white/50 backdrop-blur-sm animate-fadeIn`}>
-                  {getCibilScoreText(formData.cibilScore.split('-')[0])} - This affects your rates & eligibility
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`mt-3 p-4 rounded-xl border-2 ${getCibilScoreColor(formData.cibilScore.split('-')[0])}`}
+                >
+                  <div className="flex items-center">
+                    {parseInt(formData.cibilScore.split('-')[0]) >= 750 ? 
+                      <FaCheckCircle className="mr-2 text-xl" /> : 
+                      <FaExclamationTriangle className="mr-2 text-xl" />
+                    }
+                    <p className="text-lg font-bold">
+                      {getCibilScoreText(formData.cibilScore.split('-')[0])} - This significantly affects your rates & eligibility
+                    </p>
+                  </div>
+                </motion.div>
               )}
             </div>
 
-            {/* Loan Type */}
+            {/* Loan Type - Enhanced with Visual Cards */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-purple-600 transition-colors">
-                Loan Type
+              <label className="block text-lg font-bold text-gray-800 mb-4">
+                Loan Type *
               </label>
-              <select
-                name="loanType"
-                value={formData.loanType}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md"
-              >
-                <option value="personal">💳 Personal Loan</option>
-                <option value="home">🏠 Home Loan</option>
-                <option value="car">🚗 Car Loan</option>
-                <option value="education">🎓 Education Loan</option>
-                <option value="business">💼 Business Loan</option>
-                <option value="health">🏥 Health Loan</option>
-              </select>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {loanTypes.map((type) => (
+                  <motion.div
+                    key={type.value}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setFormData({...formData, loanType: type.value})}
+                    className={`p-6 rounded-2xl border-3 cursor-pointer transition-all duration-300 ${
+                      formData.loanType === type.value
+                        ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg transform scale-105'
+                        : 'border-gray-300 bg-white hover:border-blue-300 hover:shadow-lg'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-3xl mb-3">{type.icon}</div>
+                      <div className="text-lg font-bold text-gray-800">{type.label}</div>
+                      {formData.loanType === type.value && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="mt-2"
+                        >
+                          <FaCheckCircle className="text-blue-500 text-xl mx-auto" />
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
             </div>
 
-            {/* Loan Amount */}
+            {/* Loan Amount - Enhanced */}
             <div className="group">
-              <label className="block text-sm font-semibold text-gray-700 mb-2 group-hover:text-orange-600 transition-colors">
-                Loan Amount (₹)
+              <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-orange-600 transition-colors">
+                Loan Amount (₹) *
               </label>
               <div className="relative">
-                <FaDollarSign className="absolute left-3 top-3 text-gray-400 group-hover:text-orange-500 transition-colors" />
+                <FaDollarSign className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-orange-500 transition-colors" />
                 <input
                   type="number"
                   name="amount"
                   placeholder="Required loan amount"
                   value={formData.amount}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm hover:shadow-md"
+                  className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-orange-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl"
                   required
                 />
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
+            {/* Enhanced Submit Button */}
+            <motion.button
               type="submit"
               disabled={loading || embeddingsLoading}
-              className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold py-4 px-6 rounded-xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-105 hover:shadow-2xl group relative overflow-hidden"
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-extrabold py-6 px-8 rounded-2xl hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl hover:shadow-3xl group relative overflow-hidden text-xl"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              
               {loading ? (
                 <div className="flex items-center justify-center relative z-10">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
-                  <span className="animate-pulse">Analyzing with AI & Documents...</span>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-3 border-white mr-4"></div>
+                  <span className="animate-pulse text-xl">Analyzing with AI & Documents...</span>
                 </div>
               ) : embeddingsLoading ? (
                 <div className="flex items-center justify-center relative z-10">
-                  <FaDatabase className="mr-3 animate-spin" />
-                  Loading Knowledge Base...
+                  <FaDatabase className="mr-4 animate-spin text-xl" />
+                  <span className="text-xl">Loading Knowledge Base...</span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center relative z-10">
-                  <FaRocket className="mr-3 group-hover:animate-bounce" />
-                  Get RAG-Enhanced Recommendations
-                  <FaStar className="ml-3 group-hover:animate-spin" />
+                  <FaRocket className="mr-4 group-hover:animate-bounce text-xl" />
+                  <span className="text-xl">Get RAG-Enhanced Recommendations</span>
+                  <FaStar className="ml-4 group-hover:animate-spin text-xl" />
                 </div>
               )}
-            </button>
+            </motion.button>
 
-            {/* RAG Info */}
+            {/* RAG Info - Enhanced */}
             {embeddingsData && embeddingsData.length > 0 && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl border border-green-200">
-                <div className="flex items-center text-sm text-green-800">
-                  <FaDatabase className="mr-2" />
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl border-2 border-green-300 shadow-lg"
+              >
+                <div className="flex items-center text-lg font-bold text-green-800">
+                  <FaDatabase className="mr-3 text-xl" />
                   <span>
-                    <strong>Enhanced with RAG:</strong> Your recommendations will be based on {embeddingsData.length} financial documents for maximum accuracy.
+                    <strong>Enhanced with RAG Technology:</strong> Your recommendations will be based on {embeddingsData.length} verified financial documents for maximum accuracy and relevance.
                   </span>
                 </div>
-              </div>
+              </motion.div>
             )}
           </form>
-        </div>
+        </motion.div>
       </div>
 
       <style jsx>{`
@@ -541,14 +585,10 @@ const LoanForm = () => {
           33% { transform: translate(30px, -50px) scale(1.1); }
           66% { transform: translate(-20px, 20px) scale(0.9); }
         }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
         .animate-blob { animation: blob 7s infinite; }
         .animation-delay-2000 { animation-delay: 2s; }
         .animation-delay-4000 { animation-delay: 4s; }
-        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+        .border-3 { border-width: 3px; }
         .shadow-3xl { box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25); }
       `}</style>
     </div>
@@ -556,6 +596,7 @@ const LoanForm = () => {
 };
 
 export default LoanForm;
+
 
 
 

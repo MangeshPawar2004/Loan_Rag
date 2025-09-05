@@ -262,29 +262,7 @@ const Result = () => {
               </div>
             </div>
 
-            {/* Special Offers */}
-            {recommendation.specialOffers && (
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8 hover:shadow-3xl transition-all duration-500">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                  <FaGift className="text-yellow-600 mr-3" />
-                  Special Offers
-                </h2>
-                <div className="grid md:grid-cols-2 gap-4">
-                  {recommendation.specialOffers.map((offer, index) => (
-                    <div key={index} className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl border border-yellow-200 hover:shadow-lg transition-all duration-300">
-                      <div className="flex items-start">
-                        <FaGift className="text-yellow-600 text-xl mr-3 mt-1" />
-                        <div>
-                          <div className="font-bold text-orange-800 text-lg mb-2">Special Offer {index + 1}</div>
-                          <div className="text-orange-700">{offer}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
+      
             {/* Impact Analysis */}
             {(recommendation.cibilImpact || recommendation.maritalBenefit) && (
               <div className="grid md:grid-cols-2 gap-8">
