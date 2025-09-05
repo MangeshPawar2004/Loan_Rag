@@ -123,7 +123,7 @@ function Home() {
                   className="group"
                 >
                   <Link
-                    to="/"
+                    to="/loan-form"
                     className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 text-lg group-hover:from-blue-700 group-hover:to-indigo-700"
                   >
                     <FaRocket className="mr-3 group-hover:animate-bounce" />

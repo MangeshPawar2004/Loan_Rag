@@ -263,41 +263,7 @@ const About = () => {
             </div>
           </motion.section>
 
-          {/* Achievements Section - NEW */}
-          <motion.section
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2, duration: 0.8 }}
-            className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-3xl shadow-2xl border-2 border-yellow-200 p-12"
-          >
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-orange-800 mb-4">
-                Our Achievements
-              </h2>
-              <p className="text-xl text-orange-600">Recognition and trust from industry leaders</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {achievements.map((achievement, idx) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 2.2 + idx * 0.1, duration: 0.6 }}
-                  whileHover={{ y: -10 }}
-                  className="text-center p-6 bg-white rounded-2xl shadow-lg border-2 border-orange-200 hover:shadow-xl transition-all duration-300"
-                >
-                  <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Award className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-extrabold text-orange-800 mb-3">
-                    {achievement.title}
-                  </h3>
-                  <p className="text-orange-600">{achievement.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.section>
+   
 
           {/* Enhanced CTA */}
           <motion.section
