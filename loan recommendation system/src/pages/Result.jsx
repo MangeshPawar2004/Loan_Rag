@@ -387,7 +387,7 @@ const Result = () => {
       {/* Integrated Chatbot */}
       <ChatBot formData={formData} recommendation={recommendation} />
 
-      <style jsx>{`
+      {/* <style jsx>{`
         @keyframes blob {
           0%, 100% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
@@ -399,7 +399,7 @@ const Result = () => {
         .animation-delay-200 { animation-delay: 200ms; }
         .animation-delay-400 { animation-delay: 400ms; }
         .shadow-3xl { box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25); }
-      `}</style>
+      `}</style> */}
     </div>
   );
 };

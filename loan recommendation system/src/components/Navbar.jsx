@@ -7,7 +7,7 @@ const navLinks = [
   { id: 'loan-recommendation', title: 'Loan Recommendation', path: '/loan-form' },
   { id: 'calculator', title: 'EMI-Calculator', path: '/calculator' },
   { id: 'features', title: 'Features', path: '/features' },
-
+  { id: 'predict-loan', title: 'Predict Loan', path: '/predict-loan' },
   { id: 'about', title: 'About', path: '/about' },
   { id: 'contact', title: 'Contact', path: '/contact' },
 ];

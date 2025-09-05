@@ -213,7 +213,7 @@ const LoanForm = () => {
       `;
 
       console.log("🤖 Generating recommendations with RAG context...");
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash" });
       const genResp = await model.generateContent({
         contents: [
           {
