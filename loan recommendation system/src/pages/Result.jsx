@@ -101,7 +101,7 @@ const Result = () => {
       <div className={`max-w-6xl mx-auto transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
         {/* Header */}
         <div className="text-center mb-8 relative z-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full mb-4 animate-pulse">
+          <div className="inline-flex items-center justify-center w-20 h-20 mt-20 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full mb-4 animate-pulse">
             <FaChartLine className="text-white text-3xl" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
@@ -230,7 +230,7 @@ const Result = () => {
                   
                   <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
                     <span className="font-semibold text-gray-700">Monthly EMI</span>
-                    <span className="font-bold text-green-900 text-xl">₹{recommendation.monthlyEMI}</span>
+                    <span className="font-bold text-green-900 text-xl">{recommendation.monthlyEMI}</span>
                   </div>
                   
                   <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">

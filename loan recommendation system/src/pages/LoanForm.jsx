@@ -316,7 +316,7 @@ const LoanForm = () => {
               {embeddingsLoading 
                 ? 'Loading Knowledge Base...' 
                 : embeddingsData && embeddingsData.length > 0
-                  ? `✅ ${embeddingsData.length} Financial Documents Loaded`
+                  ? `✅ ${embeddingsData.length} Financial Embedding Loaded`
                   : '❌ Knowledge Base Unavailable'
               }
             </div>
@@ -570,7 +570,7 @@ const LoanForm = () => {
                 <div className="flex items-center text-lg font-bold text-green-800">
                   <FaDatabase className="mr-3 text-xl" />
                   <span>
-                    <strong>Enhanced with RAG Technology:</strong> Your recommendations will be based on {embeddingsData.length} verified financial documents for maximum accuracy and relevance.
+                    <strong>Enhanced with RAG Technology:</strong> Your recommendations will be based on {embeddingsData.length} verified financial embeddings for maximum accuracy and relevance.
                   </span>
                 </div>
               </motion.div>
