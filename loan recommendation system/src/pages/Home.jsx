@@ -1,15 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { 
-  FaPiggyBank, 
-  FaInfoCircle, 
-  FaCalculator, 
+import {
+  FaPiggyBank,
+  FaInfoCircle,
+  FaCalculator,
   FaShieldAlt,
   FaRocket,
   FaChartLine,
   FaUsers,
-  FaCheck
+  FaCheck,
 } from "react-icons/fa";
 
 function Home() {
@@ -17,30 +17,30 @@ function Home() {
     {
       icon: FaShieldAlt,
       title: "100% Secure",
-      description: "Bank-grade security for all your data"
+      description: "Bank-grade security for all your data",
     },
     {
       icon: FaRocket,
       title: "Instant Results",
-      description: "Get recommendations in under 30 seconds"
+      description: "Get recommendations in under 30 seconds",
     },
     {
       icon: FaChartLine,
       title: "AI-Powered",
-      description: "Advanced algorithms for accurate matching"
+      description: "Advanced algorithms for accurate matching",
     },
     {
       icon: FaUsers,
       title: "Expert Support",
-      description: "24/7 assistance from loan specialists"
-    }
+      description: "24/7 assistance from loan specialists",
+    },
   ];
 
   const stats = [
     { value: "10K+", label: "Happy Customers" },
     { value: "₹500Cr+", label: "Loans Processed" },
     { value: "4.9/5", label: "Average Rating" },
-    { value: "24/7", label: "Support Available" }
+    { value: "24/7", label: "Support Available" },
   ];
 
   return (
@@ -57,10 +57,10 @@ function Home() {
         <section className="flex-1 flex items-center justify-center px-6 py-20">
           <div className="max-w-6xl mx-auto">
             {/* Hero Card */}
-            <motion.div 
-              initial={{ opacity: 0, y: 50 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.8, ease: "easeOut" }} 
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="bg-white/80 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-12 text-center relative overflow-hidden"
             >
               {/* Decorative elements */}
@@ -71,14 +71,19 @@ function Home() {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                transition={{
+                  delay: 0.3,
+                  duration: 0.6,
+                  type: "spring",
+                  stiffness: 200,
+                }}
                 className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-8 shadow-lg"
               >
                 <FaPiggyBank className="text-4xl text-white" />
               </motion.div>
 
               {/* Heading */}
-              <motion.h1 
+              <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.8 }}
@@ -91,7 +96,7 @@ function Home() {
               </motion.h1>
 
               {/* Subtitle */}
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.8 }}
@@ -100,25 +105,28 @@ function Home() {
                 Your Personalized Loan Recommendation Platform
               </motion.p>
 
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.9, duration: 0.8 }}
                 className="text-lg text-gray-500 mb-12 max-w-2xl mx-auto"
               >
                 Get smart, AI-powered loan recommendations based on your{" "}
-                <span className="font-semibold text-gray-700">income, credit score, financial history</span> and preferences
+                <span className="font-semibold text-gray-700">
+                  income, credit score, financial history
+                </span>{" "}
+                and preferences
               </motion.p>
 
               {/* CTA Buttons */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.1, duration: 0.8 }}
                 className="flex flex-col sm:flex-row gap-6 justify-center items-center"
               >
-                <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }} 
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   className="group"
                 >
@@ -131,22 +139,26 @@ function Home() {
                   </Link>
                 </motion.div>
 
-                <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }} 
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   className="group"
                 >
                   <Link
-                    to="/about"
-                    className="inline-flex items-center px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-2xl shadow-lg hover:shadow-2xl hover:border-blue-300 hover:text-blue-600 transition-all duration-300 text-lg backdrop-blur-sm"
+                    to="/predict-loan"
+                    className="inline-flex items-center px-8 py-4 
+               bg-gradient-to-r from-red-500 via-red-600 to-red-700 
+               text-white font-semibold rounded-2xl shadow-lg
+               hover:shadow-2xl hover:from-red-600 hover:via-red-700 hover:to-red-800
+               transition-all duration-500 text-lg backdrop-blur-sm"
                   >
-                    <FaInfoCircle className="mr-3" />
-                    Learn More
+                    <FaInfoCircle className="mr-3 text-white group-hover:rotate-12 transition-transform duration-300" />
+                    Predict Loan Amount
                   </Link>
                 </motion.div>
 
-                <motion.div 
-                  whileHover={{ scale: 1.05, y: -5 }} 
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -5 }}
                   whileTap={{ scale: 0.95 }}
                   className="group"
                 >
@@ -162,7 +174,7 @@ function Home() {
             </motion.div>
 
             {/* Features Grid */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.3, duration: 0.8 }}
@@ -180,24 +192,24 @@ function Home() {
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
                     <feature.icon className="text-2xl text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{feature.title}</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">
+                    {feature.title}
+                  </h3>
                   <p className="text-gray-600">{feature.description}</p>
                 </motion.div>
               ))}
             </motion.div>
 
             {/* Stats Section */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8, duration: 0.8 }}
               className="mt-20"
-            >
-
-            </motion.div>
+            ></motion.div>
 
             {/* Why Choose Us Section */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.3, duration: 0.8 }}
@@ -207,18 +219,30 @@ function Home() {
                 Why Choose{" "}
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   SmartLoan
-                </span>?
+                </span>
+                ?
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-12">
-                Our AI-powered system evaluates your financial profile and matches you with the most suit`ab`le loan options. 
-                Experience reliability, transparency, and personalized advice like never before.
+                Our AI-powered system evaluates your financial profile and
+                matches you with the most suit`ab`le loan options. Experience
+                reliability, transparency, and personalized advice like never
+                before.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
                 {[
-                  { title: "Personalized Recommendations", desc: "Tailored loan options based on your unique financial profile" },
-                  { title: "Transparent Process", desc: "No hidden fees or surprises - complete transparency throughout" },
-                  { title: "Expert Support", desc: "Professional guidance from experienced loan specialists" }
+                  {
+                    title: "Personalized Recommendations",
+                    desc: "Tailored loan options based on your unique financial profile",
+                  },
+                  {
+                    title: "Transparent Process",
+                    desc: "No hidden fees or surprises - complete transparency throughout",
+                  },
+                  {
+                    title: "Expert Support",
+                    desc: "Professional guidance from experienced loan specialists",
+                  },
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -230,7 +254,9 @@ function Home() {
                     <div className="inline-flex items-center justify-center w-8 h-8 bg-green-500 rounded-full mb-4">
                       <FaCheck className="text-white text-sm" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-2">{item.title}</h3>
+                    <h3 className="text-lg font-bold text-gray-800 mb-2">
+                      {item.title}
+                    </h3>
                     <p className="text-gray-600">{item.desc}</p>
                   </motion.div>
                 ))}
@@ -242,13 +268,26 @@ function Home() {
 
       <style jsx>{`
         @keyframes blob {
-          0%, 100% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
+          0%,
+          100% {
+            transform: translate(0px, 0px) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
         }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
       `}</style>
     </div>
   );

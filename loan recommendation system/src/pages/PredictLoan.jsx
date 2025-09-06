@@ -279,28 +279,7 @@ export default function PredictLoan() {
                 </div>
               </div>
 
-              {/* Visual Purpose Cards */}
-              <div className="mt-8">
-                <p className="text-lg font-bold text-gray-700 mb-4">Quick Select Purpose:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {purposeOptions.map(option => (
-                    <motion.div
-                      key={option.value}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setFormData(prev => ({ ...prev, purpose: option.value }))}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer text-center transition-all duration-300 ${
-                        formData.purpose === option.value
-                          ? 'border-violet-500 bg-violet-100 shadow-lg'
-                          : 'border-gray-300 bg-white hover:border-violet-300 hover:shadow-md'
-                      }`}
-                    >
-                      <div className="text-2xl mb-2">{option.icon}</div>
-                      <div className="font-bold text-gray-800">{option.value}</div>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
+              
             </div>
 
             {/* Enhanced Submit Button */}

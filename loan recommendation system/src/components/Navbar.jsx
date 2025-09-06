@@ -63,13 +63,7 @@ const Navbar = () => {
               </Link>
             ))}
             
-            {/* Get Started Button */}
-            <Link
-              to="/"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium"
-            >
-              Get Started
-            </Link>
+            
           </div>
 
           {/* Mobile menu button */}
@@ -139,16 +133,7 @@ const Navbar = () => {
             </Link>
           ))}
           
-          {/* Mobile Get Started Button */}
-          <div className="px-3 py-2">
-            <Link
-              to="/"
-              onClick={closeMenu}
-              className="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-full hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg font-medium"
-            >
-              Get Started
-            </Link>
-          </div>
+       
         </div>
       </div>
     </nav>
