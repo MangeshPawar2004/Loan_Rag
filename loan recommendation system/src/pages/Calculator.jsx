@@ -304,38 +304,6 @@ export default function CalculatorPage() {
               </div>
             )}
 
-            {/* Risk Analysis */}
-            {risk !== null && (
-              <div className="bg-white/80 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-8">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                  <BarChart3 className="w-6 h-6 mr-2 text-purple-600" />
-                  Risk Analysis
-                </h3>
-                
-                <div className={`rounded-2xl p-6 border-2 ${getRiskColor(risk)}`}>
-                  <div className="text-center">
-                    <div className="text-4xl font-bold mb-2">{risk}</div>
-                    <div className="text-sm font-medium">Risk Score</div>
-                    <div className="mt-2 px-4 py-2 rounded-full text-sm font-semibold">
-                      {getRiskText(risk)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Info className="w-4 h-4 mr-2" />
-                    Based on loan amount, rate, and tenure
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {risk >= 80 ? 'Excellent approval chances' : 
-                     risk >= 60 ? 'Good approval chances' : 'Consider improving factors'}
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* Quick Tips */}
             <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl shadow-xl border border-yellow-200 p-8">
               <h3 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">

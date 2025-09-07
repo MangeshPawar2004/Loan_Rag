@@ -322,7 +322,7 @@ const LoanForm = () => {
             </div>
           </div>
           
-          {/* Bold Progress Bar */}
+          {/* Bold Progress Bar
           <div className="max-w-md mx-auto">
             <div className="flex justify-between text-lg font-bold text-gray-700 mb-3">
               <span>Profile Completion</span>
@@ -338,7 +338,7 @@ const LoanForm = () => {
                 <div className="h-full bg-gradient-to-r from-white/30 to-transparent rounded-full"></div>
               </motion.div>
             </div>
-          </div>
+          </div> */}
         </motion.div>
 
         {/* Enhanced Form */}
@@ -379,7 +379,7 @@ const LoanForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-lg font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors">
-                  Age *
+                  Age (years) *
                 </label>
                 <div className="relative">
                   <FaCalendarAlt className="absolute left-4 top-4 text-xl text-gray-400 group-hover:text-blue-500 transition-colors" />
@@ -389,6 +389,8 @@ const LoanForm = () => {
                     placeholder="Your age"
                     value={formData.age}
                     onChange={handleChange}
+                    min="18"
+                    max="80"
                     className="w-full pl-14 pr-6 py-4 text-lg font-medium border-3 border-gray-300 rounded-2xl focus:border-blue-500 focus:outline-none transition-all duration-300 bg-white/70 backdrop-blur-sm hover:shadow-lg focus:shadow-xl"
                     required
                   />

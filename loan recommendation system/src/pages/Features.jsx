@@ -700,7 +700,7 @@ export default function Features() {
             </div>
 
             {/* Enhanced Risk Analysis */}
-            <Section icon={ShieldCheck} title="AI Risk Analysis" subtitle="Hybrid scoring with explainable components">
+            {/* <Section icon={ShieldCheck} title="AI Risk Analysis" subtitle="Hybrid scoring with explainable components">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <h4 className="text-2xl font-extrabold text-gray-900">Score Breakdown</h4>
@@ -745,7 +745,7 @@ export default function Features() {
                   </div>
                 </div>
               </div>
-            </Section>
+            </Section> */}
 
             {/* Enhanced Offers Table */}
             <Section icon={TrendingUp} title="Personalized Offers" subtitle="Real-time rate comparison">
